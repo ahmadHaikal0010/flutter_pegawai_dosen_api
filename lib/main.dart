@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pegawai_dosen_api/ui/list_dosen_view.dart';
+import 'package:flutter_pegawai_dosen_api/ui/splash_screen.dart';
 
 void main() {
   runApp(const MainApp());
@@ -10,11 +12,8 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
-      ),
+      home: SplashScreen(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }

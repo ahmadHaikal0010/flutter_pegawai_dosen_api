@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pegawai_dosen_api/ui/list_dosen_view.dart';
 import 'package:flutter_pegawai_dosen_api/ui/splash_screen.dart';
 
 void main() {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pegawai_dosen_api/model/model_dosen.dart';
+import 'package:flutter_pegawai_dosen_api/ui/tambah_dosen_view.dart';
 import 'package:http/http.dart' as http;
 
 class ListDosenView extends StatefulWidget {
@@ -41,37 +42,69 @@ class _ListDosenViewState extends State<ListDosenView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('List Dosen')),
+      appBar: AppBar(
+        title: const Text('List Dosen'),
+        backgroundColor: Colors.blue,
+      ),
       body: FutureBuilder<List<ModelDosen>?>(
         future: futureDosens,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError || snapshot.data == null) {
-            return const Center(child: Text('Gagal memuat data'));
-          } else if (snapshot.data!.isEmpty) {
-            return const Center(child: Text('Data dosen kosong'));
-          } else {
-            final dosens = snapshot.data!;
-            return ListView.builder(
-              itemCount: dosens.length,
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Terjadi error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('Belum ada data dosen'));
+          }
+
+          final data = snapshot.data!;
+          return RefreshIndicator(
+            onRefresh: () async {
+              setState(() {
+                futureDosens = fetchDosens();
+              });
+            },
+            child: ListView.builder(
+              padding: const EdgeInsets.all(
+                8,
+              ), // <-- tambahkan padding jika sebelumnya pakai
+              physics:
+                  const AlwaysScrollableScrollPhysics(), // wajib agar bisa di-refresh walau datanya sedikit
+              itemCount: data.length,
               itemBuilder: (context, index) {
-                final dosen = dosens[index];
+                final dosen = data[index];
                 return Card(
-                  margin: const EdgeInsets.all(8),
+                  // contoh styling: kamu bisa ganti dengan ListTile biasa jika mau
                   child: ListTile(
-                    leading: CircleAvatar(
-                      child: Text(dosen.namaLengkap[0].toUpperCase()),
+                    title: Text(
+                      dosen.namaLengkap,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    title: Text(dosen.namaLengkap),
-                    subtitle: Text('NIP: ${dosen.nip}\nEmail: ${dosen.email}'),
-                    isThreeLine: true,
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("NIP: ${dosen.nip}"),
+                        Text("Email: ${dosen.email}"),
+                        Text("Telp: ${dosen.noTelepon}"),
+                      ],
+                    ),
                   ),
                 );
               },
-            );
-          }
+            ),
+          );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => TambahDosenView()),
+          );
+        },
+        child: const Icon(Icons.add),
+        backgroundColor: Colors.blueAccent,
+        tooltip: 'Tambah Dosen',
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pegawai_dosen_api/model/model_dosen.dart';
+import 'package:flutter_pegawai_dosen_api/ui/edit_dosen_view.dart';
 import 'package:flutter_pegawai_dosen_api/ui/tambah_dosen_view.dart';
 import 'package:http/http.dart' as http;
 
@@ -33,6 +34,29 @@ class _ListDosenViewState extends State<ListDosenView> {
     }
   }
 
+  Future<void> deleteDosen(int no) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('http://192.168.56.1:8000/api/dosen/$no'),
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Data berhasil dihapus')));
+        setState(() {
+          futureDosens = fetchDosens();
+        });
+      } else {
+        throw Exception('Gagal menghapus data');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -43,7 +67,7 @@ class _ListDosenViewState extends State<ListDosenView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('List Dosen'),
+        title: const Text('List Dosen', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.blue,
       ),
       body: FutureBuilder<List<ModelDosen>?>(
@@ -88,6 +112,41 @@ class _ListDosenViewState extends State<ListDosenView> {
                         Text("Telp: ${dosen.noTelepon}"),
                       ],
                     ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => EditDosenView(dosen: dosen.toJson()),
+                        ),
+                      );
+                    },
+                    onLongPress: () {
+                      showDialog(
+                        context: context,
+                        builder:
+                            (ctx) => AlertDialog(
+                              title: const Text('Hapus Dosen'),
+                              content: const Text(
+                                'Yakin ingin menghapus dosen ini?',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(ctx).pop(),
+                                  child: const Text('Batal'),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(ctx).pop();
+                                    deleteDosen(
+                                      dosen.no,
+                                    ); // pastikan ModelDosen punya field id
+                                  },
+                                  child: const Text('Hapus'),
+                                ),
+                              ],
+                            ),
+                      );
+                    },
                   ),
                 );
               },

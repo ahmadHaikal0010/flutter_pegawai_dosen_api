@@ -58,7 +58,13 @@ class _TambahDosenViewState extends State<TambahDosenView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Tambah Dosen')),
+      appBar: AppBar(
+        title: const Text(
+          'Tambah Dosen',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.blue,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
